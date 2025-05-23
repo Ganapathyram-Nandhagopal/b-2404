@@ -210,9 +210,9 @@ const Index = () => {
 
   const fillDummyData = () => {
     setBillTo({
-      name: "John Doe",
-      address: "123 Main St, Anytown, USA",
-      phone: "(555) 123-4567",
+      name: "Ganapathyram Nandhagopal",
+      address: "Coimbatore, Tamil Nadu, India",
+      phone: "+91 6383236424",
     });
     setShipTo({
       name: "Jane Smith",
@@ -277,7 +277,7 @@ const Index = () => {
     ]);
     settaxPercentage(10);
     calculateSubTotal();
-    setNotes("Thank you for your business!");
+    setNotes("Thank you for your business! Created by Ganapathy");
   };
 
   const clearForm = () => {

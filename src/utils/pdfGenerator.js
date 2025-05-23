@@ -1,3 +1,4 @@
+
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -33,6 +34,7 @@ export const generatePDF = async (invoiceData, templateNumber) => {
       const { name: companyName } = invoiceData.yourCompany;
       const { name: billToName } = invoiceData.billTo;
       const timestamp = new Date().getTime();
+      const creator = "Created by Ganapathy";
 
       let fileName;
       switch (templateNumber) {
@@ -66,6 +68,14 @@ export const generatePDF = async (invoiceData, templateNumber) => {
         default:
           fileName = `invoice_template_${templateNumber}.pdf`;
       }
+      
+      // Add metadata
+      pdf.setProperties({
+        title: `Invoice ${number}`,
+        subject: `Invoice for ${billToName}`,
+        author: 'Ganapathy',
+        creator: creator
+      });
 
       pdf.save(fileName);
       
