@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { format } from 'date-fns';
 import BaseTemplate from './BaseTemplate';
 import { formatCurrency } from '../../utils/formatCurrency';
 
 const Template5 = ({ data = {} }) => {
-  const { billTo = {}, shipTo = {}, invoice = {}, yourCompany = {}, items = [], taxPercentage = 0, taxAmount = 0, subTotal = 0, grandTotal = 0, notes = '' } = data;
+  const { billTo = {}, shipTo = {}, invoice = {}, yourCompany = {}, items = [], taxPercentage = 0, taxAmount = 0, subTotal = 0, grandTotal = 0, notes = '', creator = '' } = data;
 
   return (
     <BaseTemplate data={data}>
@@ -118,7 +119,8 @@ const Template5 = ({ data = {} }) => {
           )}
         </div>
         <div className="p-4 text-center text-sm text-gray-600 bg-green-50">
-          This is a computer-generated invoice and doesn't require a signature.
+          <p>This is a computer-generated invoice and doesn't require a signature.</p>
+          <p className="font-medium mt-1">{data.creator || "Created by Ganapathy"}</p>
         </div>
       </div>
     </BaseTemplate>

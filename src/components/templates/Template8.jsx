@@ -1,9 +1,10 @@
+
 import React from 'react';
 import BaseTemplate from './BaseTemplate';
 import { formatCurrency } from '../../utils/formatCurrency';
 
 const Template8 = ({ data }) => {
-  const { billTo, shipTo, invoice, yourCompany, items, taxPercentage, taxAmount, subTotal, grandTotal, notes } = data;
+  const { billTo, shipTo, invoice, yourCompany, items, taxPercentage, taxAmount, subTotal, grandTotal, notes, creator } = data;
 
   return (
     <BaseTemplate data={data}>
@@ -99,6 +100,9 @@ const Template8 = ({ data }) => {
               <p>{yourCompany.address}</p>
               <p>{yourCompany.phone}</p>
             </div>
+          </div>
+          <div className="text-center text-sm text-gray-600 mt-4">
+            <p>{data.creator || "Created by Ganapathy"}</p>
           </div>
         </footer>
       </div>

@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { format } from 'date-fns';
 import BaseTemplate from './BaseTemplate';
 import { formatCurrency } from '../../utils/formatCurrency';
 
 const Template7 = ({ data }) => {
-  const { billTo = {}, shipTo = {}, invoice = {}, yourCompany = {}, items = [], taxPercentage = 0, taxAmount = 0, subTotal = 0, grandTotal = 0, notes = '' } = data || {};
+  const { billTo = {}, shipTo = {}, invoice = {}, yourCompany = {}, items = [], taxPercentage = 0, taxAmount = 0, subTotal = 0, grandTotal = 0, notes = '', creator = '' } = data || {};
 
   return (
     <BaseTemplate data={data}>
@@ -99,6 +100,10 @@ const Template7 = ({ data }) => {
             <p>{notes}</p>
           </div>
         )}
+        
+        <div className="text-center text-sm border-t pt-3 text-gray-600">
+          <p>{data.creator || "Created by Ganapathy"}</p>
+        </div>
       </div>
     </BaseTemplate>
   );

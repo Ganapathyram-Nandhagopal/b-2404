@@ -277,7 +277,7 @@ const Index = () => {
     ]);
     settaxPercentage(10);
     calculateSubTotal();
-    setNotes("Thank you for your business! Created by Ganapathy");
+    setNotes("Thank you for your business!");
   };
 
   const clearForm = () => {

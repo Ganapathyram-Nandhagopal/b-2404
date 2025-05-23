@@ -13,7 +13,13 @@ export const generatePDF = async (invoiceData, templateNumber) => {
       const ReactDOMServer = (await import('react-dom/server')).default;
       const React = (await import('react')).default;
       
-      const invoiceElement = React.createElement(InvoiceTemplate, { data: invoiceData, templateNumber });
+      // Add creator information as a separate property rather than in notes
+      const dataWithCreator = {
+        ...invoiceData,
+        creator: "Created by Ganapathy"
+      };
+      
+      const invoiceElement = React.createElement(InvoiceTemplate, { data: dataWithCreator, templateNumber });
       const invoiceHTML = ReactDOMServer.renderToString(invoiceElement);
       
       invoice.innerHTML = invoiceHTML;
@@ -54,7 +60,7 @@ export const generatePDF = async (invoiceData, templateNumber) => {
           fileName = `${number}-${date}.pdf`;
           break;
         case 6:
-          fileName = `invoice_${timestamp}.pdf`;
+          fileName = `${timestamp}.pdf`;
           break;
         case 7:
           fileName = `Invoice_${number}.pdf`;

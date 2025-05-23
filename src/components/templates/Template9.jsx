@@ -4,7 +4,7 @@ import BaseTemplate from './BaseTemplate';
 import { formatCurrency } from '../../utils/formatCurrency';
 
 const Template9 = ({ data }) => {
-  const { billTo = {}, shipTo = {}, invoice = {}, yourCompany = {}, items = [], taxPercentage = 0, taxAmount = 0, subTotal = 0, grandTotal = 0, notes = '' } = data || {};
+  const { billTo = {}, shipTo = {}, invoice = {}, yourCompany = {}, items = [], taxPercentage = 0, taxAmount = 0, subTotal = 0, grandTotal = 0, notes = '', creator = '' } = data || {};
 
   return (
     <BaseTemplate data={data}>
@@ -113,6 +113,9 @@ const Template9 = ({ data }) => {
             <p>{notes}</p>
           </div>
         )}
+        <div className="text-center text-sm text-gray-600 mt-8 pt-3 border-t">
+          <p className="text-orange-600 font-medium">{data.creator || "Created by Ganapathy"}</p>
+        </div>
       </div>
     </BaseTemplate>
   );
