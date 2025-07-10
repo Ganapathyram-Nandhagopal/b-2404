@@ -1,0 +1,1438 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .grid-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 0.5rem;
+            align-items: end;
+            margin-bottom: 0.5rem;
+        }
+
+        .totals-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 0.375rem;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-row.grand-total {
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-top: 1px solid #d1d5db;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .receipt-preview {
+            width: 380px;
+            margin: 0 auto;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .template-selector label {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+        }
+
+        .template-selector input[type="radio"] {
+            margin-right: 0.5rem;
+        }
+
+        .action-buttons {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .floating-btn {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        /* Receipt Template Styles */
+        .receipt-content {
+            padding: 1rem;
+            font-size: 14px;
+            min-height: 500px;
+        }
+
+        .receipt-classic {
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.2;
+        }
+
+        .receipt-modern {
+            font-family: 'Consolas', monospace;
+            line-height: 1.2;
+        }
+
+        .receipt-detailed {
+            font-family: 'Monaco', monospace;
+            line-height: 1.2;
+        }
+
+        .receipt-gst {
+            font-family: 'Courier New', monospace;
+        }
+
+        .receipt-sales {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.3;
+        }
+
+        .receipt-formal {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.2;
+            border: 2px solid #1f2937;
+        }
+
+        .receipt-digital {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.2;
+            background: linear-gradient(to bottom, #dbeafe, white);
+        }
+
+        .receipt-terminal {
+            font-family: 'Courier New', monospace;
+            line-height: 1.1;
+            background: black;
+            color: #22c55e;
+        }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mt-4 { margin-top: 1rem; }
+        .p-2 { padding: 0.5rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .border-t { border-top: 1px solid #e5e7eb; }
+        .border-b { border-bottom: 1px solid #e5e7eb; }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .receipt-preview, .receipt-preview * {
+                visibility: visible;
+            }
+            .receipt-preview {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .action-buttons,
+            .print-button {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="action-buttons">
+        <button class="floating-btn btn-danger" onclick="clearForm()" title="Clear Form">🗑️</button>
+        <button class="floating-btn btn-primary" onclick="fillDummyData()" title="Fill Dummy Data">✏️</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Receipt Generator</h1>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <form id="receiptForm">
+                    <!-- Your Company Section -->
+                    <div>
+                        <h2 class="section-title">Your Company</h2>
+                        <div class="grid grid-2">
+                            <div class="input-group">
+                                <label for="companyName">Name</label>
+                                <input type="text" id="companyName" name="companyName">
+                            </div>
+                            <div class="input-group">
+                                <label for="companyPhone">Phone</label>
+                                <input type="text" id="companyPhone" name="companyPhone">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="companyAddress">Address</label>
+                            <input type="text" id="companyAddress" name="companyAddress">
+                        </div>
+                        <div class="input-group">
+                            <label for="companyGST">GST No.</label>
+                            <input type="text" id="companyGST" name="companyGST" maxlength="15">
+                        </div>
+                        <div class="input-group">
+                            <label for="cashier">Cashier</label>
+                            <input type="text" id="cashier" name="cashier">
+                        </div>
+                    </div>
+
+                    <!-- Bill To Section -->
+                    <div>
+                        <h2 class="section-title">Bill To</h2>
+                        <div class="input-group">
+                            <label for="billTo">Customer Name</label>
+                            <input type="text" id="billTo" name="billTo">
+                        </div>
+                    </div>
+
+                    <!-- Receipt Information -->
+                    <div>
+                        <h2 class="section-title">Receipt Information</h2>
+                        <div class="grid grid-2">
+                            <div class="input-group">
+                                <label for="receiptNumber">Receipt Number</label>
+                                <input type="text" id="receiptNumber" name="receiptNumber">
+                            </div>
+                            <div class="input-group">
+                                <label for="receiptDate">Receipt Date</label>
+                                <input type="date" id="receiptDate" name="receiptDate">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <div>
+                        <h2 class="section-title">Items</h2>
+                        <div id="itemsContainer">
+                            <div class="item-row">
+                                <div class="input-group">
+                                    <label>Item Name</label>
+                                    <input type="text" name="itemName" onchange="updateTotals()">
+                                </div>
+                                <div class="input-group">
+                                    <label>Quantity</label>
+                                    <input type="number" name="itemQuantity" min="0" step="1" onchange="updateTotals()">
+                                </div>
+                                <div class="input-group">
+                                    <label>Rate</label>
+                                    <input type="number" name="itemRate" min="0" step="0.01" onchange="updateTotals()">
+                                </div>
+                                <div class="input-group">
+                                    <label>Total</label>
+                                    <input type="number" name="itemTotal" readonly>
+                                </div>
+                                <button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addItem()">Add Item</button>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="totals-section">
+                        <h3 class="section-title">Totals</h3>
+                        <div class="total-row">
+                            <span>Sub Total:</span>
+                            <span>₹ <span id="subTotal">0.00</span></span>
+                        </div>
+                        <div class="total-row">
+                            <span>Tax Rate (%):</span>
+                            <input type="number" id="taxPercentage" min="0" max="28" step="1" value="0" onchange="updateTotals()" style="width: 80px;">
+                        </div>
+                        <div class="total-row">
+                            <span>Tax Amount:</span>
+                            <span>₹ <span id="taxAmount">0.00</span></span>
+                        </div>
+                        <div class="total-row grand-total">
+                            <span>Grand Total:</span>
+                            <span>₹ <span id="grandTotal">0.00</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <h2 class="section-title">Notes</h2>
+                        <div class="input-group">
+                            <textarea id="notes" name="notes" rows="3" placeholder="Thank you for your business!"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div>
+                        <h2 class="section-title">Footer</h2>
+                        <div class="input-group">
+                            <textarea id="footer" name="footer" rows="2" placeholder="Thank you for visiting!"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="preview-section">
+                <h2 class="section-title">Receipt Preview</h2>
+                
+                <!-- Template Selector -->
+                <div class="template-selector">
+                    <label>
+                        <input type="radio" name="template" value="classic" checked onchange="updatePreview()">
+                        Classic
+                    </label>
+                    <label>
+                        <input type="radio" name="template" value="modern" onchange="updatePreview()">
+                        Modern
+                    </label>
+                    <label>
+                        <input type="radio" name="template" value="detailed" onchange="updatePreview()">
+                        Detailed
+                    </label>
+                    <label>
+                        <input type="radio" name="template" value="gst" onchange="updatePreview()">
+                        GST
+                    </label>
+                    <label>
+                        <input type="radio" name="template" value="sales" onchange="updatePreview()">
+                        Sales
+                    </label>
+                    <label>
+                        <input type="radio" name="template" value="formal" onchange="updatePreview()">
+                        Formal
+                    </label>
+                    <label>
+                        <input type="radio" name="template" value="digital" onchange="updatePreview()">
+                        Digital
+                    </label>
+                    <label>
+                        <input type="radio" name="template" value="terminal" onchange="updatePreview()">
+                        Terminal
+                    </label>
+                </div>
+
+                <div class="receipt-preview" id="receiptPreview">
+                    <!-- Receipt content will be generated here -->
+                </div>
+                
+                <div class="print-button" style="text-align: center; margin-top: 1rem;">
+                    <button class="btn btn-primary" onclick="printReceipt()">Print Receipt</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let receiptData = {};
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            generateRandomReceiptNumber();
+            setDefaultDate();
+            loadSavedData();
+            updatePreview();
+            
+            // Add event listeners to all form inputs
+            const form = document.getElementById('receiptForm');
+            form.addEventListener('input', function() {
+                updateTotals();
+                updatePreview();
+                saveData();
+            });
+        });
+
+        // Generate random receipt number
+        function generateRandomReceiptNumber() {
+            const length = Math.floor(Math.random() * 6) + 3;
+            const alphabetCount = Math.min(Math.floor(Math.random() * 4), length);
+            let result = "";
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const numbers = "0123456789";
+
+            for (let i = 0; i < alphabetCount; i++) {
+                result += alphabet[Math.floor(Math.random() * alphabet.length)];
+            }
+
+            for (let i = alphabetCount; i < length; i++) {
+                result += numbers[Math.floor(Math.random() * numbers.length)];
+            }
+
+            document.getElementById('receiptNumber').value = result;
+        }
+
+        // Set default date
+        function setDefaultDate() {
+            const today = new Date();
+            document.getElementById('receiptDate').value = today.toISOString().split('T')[0];
+        }
+
+        // Add new item row
+        function addItem() {
+            const container = document.getElementById('itemsContainer');
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+            itemRow.innerHTML = `
+                <div class="input-group">
+                    <input type="text" name="itemName" placeholder="Item Name" onchange="updateTotals()">
+                </div>
+                <div class="input-group">
+                    <input type="number" name="itemQuantity" min="0" step="1" placeholder="0" onchange="updateTotals()">
+                </div>
+                <div class="input-group">
+                    <input type="number" name="itemRate" min="0" step="0.01" placeholder="0.00" onchange="updateTotals()">
+                </div>
+                <div class="input-group">
+                    <input type="number" name="itemTotal" readonly>
+                </div>
+                <button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button>
+            `;
+            container.appendChild(itemRow);
+        }
+
+        // Remove item row
+        function removeItem(button) {
+            button.parentElement.remove();
+            updateTotals();
+            updatePreview();
+            saveData();
+        }
+
+        // Update totals calculation
+        function updateTotals() {
+            const itemRows = document.querySelectorAll('.item-row');
+            let subTotal = 0;
+
+            itemRows.forEach(row => {
+                const quantity = parseFloat(row.querySelector('[name="itemQuantity"]').value) || 0;
+                const rate = parseFloat(row.querySelector('[name="itemRate"]').value) || 0;
+                const total = quantity * rate;
+                
+                row.querySelector('[name="itemTotal"]').value = total.toFixed(2);
+                subTotal += total;
+            });
+
+            const taxPercentage = parseFloat(document.getElementById('taxPercentage').value) || 0;
+            const taxAmount = (subTotal * taxPercentage) / 100;
+            const grandTotal = subTotal + taxAmount;
+
+            document.getElementById('subTotal').textContent = subTotal.toFixed(2);
+            document.getElementById('taxAmount').textContent = taxAmount.toFixed(2);
+            document.getElementById('grandTotal').textContent = grandTotal.toFixed(2);
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return `₹${parseFloat(amount).toFixed(2)}`;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return new Date().toLocaleDateString();
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+
+        // Get form data
+        function getFormData() {
+            const form = document.getElementById('receiptForm');
+            const formData = new FormData(form);
+            const data = {};
+
+            // Basic form data
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Items data
+            const itemRows = document.querySelectorAll('.item-row');
+            data.items = [];
+            
+            itemRows.forEach(row => {
+                const name = row.querySelector('[name="itemName"]').value;
+                const quantity = parseFloat(row.querySelector('[name="itemQuantity"]').value) || 0;
+                const rate = parseFloat(row.querySelector('[name="itemRate"]').value) || 0;
+                const total = quantity * rate;
+                
+                if (name || quantity || rate) {
+                    data.items.push({
+                        name: name,
+                        quantity: quantity,
+                        amount: rate,
+                        total: total
+                    });
+                }
+            });
+
+            return data;
+        }
+
+        // Get selected template
+        function getSelectedTemplate() {
+            const templates = document.querySelectorAll('input[name="template"]');
+            for (let template of templates) {
+                if (template.checked) {
+                    return template.value;
+                }
+            }
+            return 'classic';
+        }
+
+        // Update preview
+        function updatePreview() {
+            const data = getFormData();
+            const template = getSelectedTemplate();
+            const subTotal = parseFloat(document.getElementById('subTotal').textContent) || 0;
+            const taxAmount = parseFloat(document.getElementById('taxAmount').textContent) || 0;
+            const grandTotal = parseFloat(document.getElementById('grandTotal').textContent) || 0;
+            const taxPercentage = parseFloat(document.getElementById('taxPercentage').value) || 0;
+
+            const preview = document.getElementById('receiptPreview');
+            
+            let receiptClass = 'receipt-content ';
+            switch (template) {
+                case 'classic':
+                    receiptClass += 'receipt-classic';
+                    preview.innerHTML = generateClassicReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage);
+                    break;
+                case 'modern':
+                    receiptClass += 'receipt-modern';
+                    preview.innerHTML = generateModernReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage);
+                    break;
+                case 'detailed':
+                    receiptClass += 'receipt-detailed';
+                    preview.innerHTML = generateDetailedReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage);
+                    break;
+                case 'gst':
+                    receiptClass += 'receipt-gst';
+                    preview.innerHTML = generateGSTReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage);
+                    break;
+                case 'sales':
+                    receiptClass += 'receipt-sales';
+                    preview.innerHTML = generateSalesReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage);
+                    break;
+                case 'formal':
+                    receiptClass += 'receipt-formal';
+                    preview.innerHTML = generateFormalReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage);
+                    break;
+                case 'digital':
+                    receiptClass += 'receipt-digital';
+                    preview.innerHTML = generateDigitalReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage);
+                    break;
+                case 'terminal':
+                    receiptClass += 'receipt-terminal';
+                    preview.innerHTML = generateTerminalReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage);
+                    break;
+            }
+            
+            preview.className = receiptClass;
+        }
+
+        // Classic Receipt Template
+        function generateClassicReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage) {
+            return `
+                <div class="text-center font-bold mb-2">RECEIPT</div>
+                <div class="mb-2 text-center">
+                    <div>${data.companyName || "N/A"}</div>
+                    <div>${data.companyAddress || "N/A"}</div>
+                    ${data.companyPhone ? `<div>${data.companyPhone}</div>` : ''}
+                </div>
+                <div>Invoice: ${data.receiptNumber || "N/A"}</div>
+                <div>Date: ${formatDate(data.receiptDate)}</div>
+                <div class="mb-2">Customer: ${data.billTo || "N/A"}</div>
+                <div class="mb-2">Cashier: ${data.cashier || "N/A"}</div>
+                <div class="border-t border-b py-2 mb-2">
+                    <div style="display: flex; justify-content: space-between;" class="font-bold mb-2">
+                        <span>Item</span>
+                        <span>Total</span>
+                    </div>
+                    ${data.items.map(item => `
+                        <div style="display: flex; justify-content: space-between;" class="mb-2">
+                            <div>
+                                <span>${item.name || "N/A"} X ${item.quantity || 0} qty</span>
+                            </div>
+                            <span>${formatCurrency(item.total || 0)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Subtotal:</span>
+                    <span>${formatCurrency(subTotal)}</span>
+                </div>
+                ${taxPercentage > 0 ? `
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Tax (${taxPercentage}%):</span>
+                        <span>${formatCurrency(taxAmount)}</span>
+                    </div>
+                ` : ''}
+                <div style="display: flex; justify-content: space-between;" class="font-bold mt-2">
+                    <span>Total:</span>
+                    <span>${formatCurrency(grandTotal)}</span>
+                </div>
+                ${data.notes ? `
+                    <div class="mt-4">
+                        <div>${data.notes}</div>
+                    </div>
+                ` : ''}
+                <div class="text-center mt-4">${data.footer || ""}</div>
+            `;
+        }
+
+        // Modern Receipt Template
+        function generateModernReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage) {
+            return `
+                <div class="text-center font-bold mb-2">CUSTOMER RECEIPT</div>
+                <div class="text-center mb-2">******************************</div>
+                <div class="mb-2" style="display: flex; justify-content: space-between;">
+                    <div>Invoice: ${data.receiptNumber || "N/A"}</div>
+                    <div class="text-right">Date: ${formatDate(data.receiptDate)}</div>
+                </div>
+                <div class="text-center mb-2">******************************</div>
+                <div class="mb-2 text-center">
+                    <div>${data.companyName || "N/A"}</div>
+                    <div>${data.companyAddress || "N/A"}</div>
+                    ${data.companyPhone ? `<div>${data.companyPhone}</div>` : ''}
+                </div>
+                <div class="mb-2">Customer: ${data.billTo || "N/A"}</div>
+                <div class="mb-2">Cashier: ${data.cashier || "N/A"}</div>
+                <div class="text-center mb-2">******************************</div>
+                <div class="py-2 mb-2">
+                    <div style="display: flex; justify-content: space-between;" class="font-bold mb-2">
+                        <span>Item</span>
+                        <span>Total</span>
+                    </div>
+                    ${data.items.map(item => `
+                        <div style="display: flex; justify-content: space-between;" class="mb-2">
+                            <div>
+                                <span>${item.name || "N/A"} X ${item.quantity || 0}</span>
+                            </div>
+                            <span>${formatCurrency(item.total || 0)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="text-center mb-2">******************************</div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Subtotal:</span>
+                    <span>${formatCurrency(subTotal)}</span>
+                </div>
+                ${taxPercentage > 0 ? `
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Tax (${taxPercentage}%):</span>
+                        <span>${formatCurrency(taxAmount)}</span>
+                    </div>
+                ` : ''}
+                <div style="display: flex; justify-content: space-between;" class="font-bold mt-2">
+                    <span>Total:</span>
+                    <span>${formatCurrency(grandTotal)}</span>
+                </div>
+                ${data.notes ? `
+                    <div class="mt-4">
+                        <div>${data.notes}</div>
+                    </div>
+                ` : ''}
+                <div class="text-center mt-4">${data.footer || ""}</div>
+            `;
+        }
+
+        // Detailed Receipt Template
+        function generateDetailedReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage) {
+            return `
+                <div class="text-center font-bold mb-2 pb-2" style="border-bottom: 2px dashed #000;">
+                    CASH RECEIPT
+                    ${data.companyName ? `<div class="mt-2">${data.companyName}</div>` : ''}
+                    ${data.companyAddress ? `<div>${data.companyAddress}</div>` : ''}
+                    ${data.companyPhone ? `<div>${data.companyPhone}</div>` : ''}
+                </div>
+                <div class="mb-2 text-right">
+                    <div><strong>Invoice#:</strong> ${data.receiptNumber || "N/A"}</div>
+                    <div><strong>Date:</strong> ${formatDate(data.receiptDate)}</div>
+                </div>
+                <div class="mb-2"><strong>Customer:</strong> ${data.billTo || "N/A"}</div>
+                <div class="mb-2 pb-2" style="border-bottom: 2px dashed #000;">
+                    <strong>Cashier:</strong> ${data.cashier || "N/A"}
+                </div>
+                <div class="py-2 mb-2">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0.5rem;" class="font-bold mb-2">
+                        <span>Item</span>
+                        <span>Qty</span>
+                        <span>Amt</span>
+                        <span>Total</span>
+                    </div>
+                    ${data.items.map((item, index) => `
+                        <div class="mb-2">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>${index + 1}. ${item.name || "N/A"}</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; text-align: right;">
+                                <span>${item.quantity || 0}</span>
+                                <span>${formatCurrency(item.amount || 0)}</span>
+                                <span>${formatCurrency(item.total || 0)}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>SubTotal:</span>
+                    <span>${formatCurrency(subTotal)}</span>
+                </div>
+                ${taxPercentage > 0 ? `
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Tax (${taxPercentage}%):</span>
+                        <span>${formatCurrency(taxAmount)}</span>
+                    </div>
+                ` : ''}
+                <div style="display: flex; justify-content: space-between; border-top: 2px dashed #000; border-bottom: 2px dashed #000;" class="font-bold mt-2 py-2">
+                    <span>${data.items.length} Items</span>
+                    <span>Total: ${formatCurrency(grandTotal)}</span>
+                </div>
+                ${data.notes ? `
+                    <div class="mt-4">
+                        <div>${data.notes}</div>
+                    </div>
+                ` : ''}
+                <div class="text-center mt-4" style="color: #666;">${data.footer || ""}</div>
+            `;
+        }
+
+        // GST Receipt Template
+        function generateGSTReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage) {
+            const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+            return `
+                <div class="text-center font-bold">${data.companyName || "Company Name"}</div>
+                <div class="text-center">${data.companyAddress || "Company Address"}</div>
+                <div class="text-center">Phone Number: ${data.companyPhone || "N/A"}</div>
+                ${data.companyGST ? `<div class="text-center">GST No: ${data.companyGST.toUpperCase()}</div>` : ''}
+                <hr style="margin: 1rem 0;" />
+                <div>
+                    <div>Invoice Number: ${data.receiptNumber || "N/A"}</div>
+                    <div>Created By: ${data.cashier || "N/A"}</div>
+                    <div>Date & Time: ${formatDate(data.receiptDate)} ${currentTime}</div>
+                </div>
+                <hr style="margin: 1rem 0;" />
+                <div>
+                    <div><strong>Bill to:</strong></div>
+                    <div>${data.billTo || "N/A"}</div>
+                    <div>Place of supply: India</div>
+                </div>
+                <hr style="margin: 1rem 0;" />
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Item</th>
+                            <th style="text-align: right;">Qty</th>
+                            <th style="text-align: right;">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.items.map(item => `
+                            <tr>
+                                <td>${item.name || "N/A"}</td>
+                                <td style="text-align: right;">${item.quantity || 0}</td>
+                                <td style="text-align: right;">${formatCurrency(item.amount || 0)}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align: left; font-size: 0.875rem; padding-bottom: 0.5rem;">
+                                    HSN Code: ${item.description || "N/A"}
+                                </td>
+                                <td style="text-align: right; padding-bottom: 0.5rem;">Total: ${formatCurrency(item.total || 0)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <hr style="margin: 1rem 0;" />
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Sub Total:</span>
+                    <span>${formatCurrency(subTotal)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Tax (${taxPercentage}%):</span>
+                    <span>${formatCurrency(taxAmount)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;" class="font-bold">
+                    <span>TOTAL:</span>
+                    <span>${formatCurrency(grandTotal)}</span>
+                </div>
+                <hr style="margin: 1rem 0;" />
+                <div>
+                    <div class="font-bold mb-2">Tax Summary</div>
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="text-align: left; font-weight: normal;">Type</th>
+                                <th style="text-align: right; font-weight: normal;">Rate</th>
+                                <th style="text-align: right; font-weight: normal;">Total Amt</th>
+                                <th style="text-align: right; font-weight: normal;">Tax Amt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CGST</td>
+                                <td style="text-align: right;">${(taxPercentage / 2).toFixed(2)}%</td>
+                                <td style="text-align: right;">${formatCurrency(subTotal)}</td>
+                                <td style="text-align: right;">${formatCurrency(taxAmount / 2)}</td>
+                            </tr>
+                            <tr>
+                                <td>SGST</td>
+                                <td style="text-align: right;">${(taxPercentage / 2).toFixed(2)}%</td>
+                                <td style="text-align: right;">${formatCurrency(subTotal)}</td>
+                                <td style="text-align: right;">${formatCurrency(taxAmount / 2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <hr style="margin: 1rem 0;" />
+                <div class="text-center">${data.footer || ""}</div>
+            `;
+        }
+
+        // Sales Receipt Template
+        function generateSalesReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage) {
+            return `
+                <div class="text-center mb-3">
+                    <div style="background: black; color: white; padding: 0.5rem; margin-bottom: 0.5rem;">
+                        <div class="font-bold" style="font-size: 1.125rem;">SALES RECEIPT</div>
+                    </div>
+                    ${data.companyName ? `<div class="font-bold" style="font-size: 1.125rem;">${data.companyName}</div>` : ''}
+                    ${data.companyAddress ? `<div style="font-size: 0.875rem;">${data.companyAddress}</div>` : ''}
+                    ${data.companyPhone ? `<div style="font-size: 0.875rem;">Tel: ${data.companyPhone}</div>` : ''}
+                </div>
+                
+                <div style="border-top: 1px solid #9ca3af; border-bottom: 1px solid #9ca3af; padding: 0.5rem 0; margin-bottom: 0.5rem;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span><strong>Receipt#:</strong> ${data.receiptNumber || "N/A"}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span><strong>Date:</strong> ${formatDate(data.receiptDate)}</span>
+                        <span><strong>Time:</strong> ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
+                    <div><strong>Customer:</strong> ${data.billTo || "Walk-in"}</div>
+                    <div><strong>Served by:</strong> ${data.cashier || "N/A"}</div>
+                </div>
+
+                <div class="mb-3">
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0.25rem; font-size: 0.75rem; font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 0.25rem; margin-bottom: 0.5rem;">
+                        <span>Item</span>
+                        <span style="text-align: center;">Qty</span>
+                        <span style="text-align: right;">Price</span>
+                        <span style="text-align: right;">Total</span>
+                    </div>
+                    ${data.items.map(item => `
+                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0.25rem; font-size: 0.75rem; margin-bottom: 0.25rem;">
+                            <span style="font-size: 0.75rem;">${item.name || "Item"}</span>
+                            <span style="text-align: center;">${item.quantity || 0}</span>
+                            <span style="text-align: right;">${formatCurrency(item.amount || 0)}</span>
+                            <span style="text-align: right;">${formatCurrency(item.total || 0)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="border-top: 1px solid #9ca3af; padding-top: 0.5rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                        <span>Subtotal:</span>
+                        <span>${formatCurrency(subTotal)}</span>
+                    </div>
+                    ${taxPercentage > 0 ? `
+                        <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                            <span>Tax (${taxPercentage}%):</span>
+                            <span>${formatCurrency(taxAmount)}</span>
+                        </div>
+                    ` : ''}
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; border-top: 1px solid #000; padding-top: 0.25rem; margin-top: 0.25rem;">
+                        <span>TOTAL:</span>
+                        <span>${formatCurrency(grandTotal)}</span>
+                    </div>
+                </div>
+
+                ${data.notes ? `
+                    <div style="margin-top: 0.75rem; font-size: 0.75rem;">
+                        <div>${data.notes}</div>
+                    </div>
+                ` : ''}
+                
+                <div style="text-align: center; font-size: 0.75rem; margin-top: 1rem; border-top: 1px solid #000; padding-top: 0.5rem;">${data.footer || ""}</div>
+            `;
+        }
+
+        // Formal Receipt Template
+        function generateFormalReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage) {
+            return `
+                <div style="padding: 0.5rem;">
+                    <div class="text-center mb-3">
+                        <div style="border: 4px double #1f2937; padding: 0.5rem; margin-bottom: 0.5rem;">
+                            <div class="font-bold" style="font-size: 1.25rem;">INVOICE</div>
+                            ${data.companyName ? `<div class="font-bold mt-1">${data.companyName}</div>` : ''}
+                        </div>
+                        ${data.companyAddress ? `<div style="font-size: 0.875rem; font-style: italic;">${data.companyAddress}</div>` : ''}
+                        ${data.companyPhone ? `<div style="font-size: 0.875rem;">Phone: ${data.companyPhone}</div>` : ''}
+                    </div>
+                    
+                    <div style="border: 1px solid #4b5563; padding: 0.5rem; margin-bottom: 0.75rem;">
+                        <div class="text-center font-bold mb-2">TRANSACTION DETAILS</div>
+                        <div style="font-size: 0.875rem;">
+                            <div>Invoice No: <span class="font-bold">${data.receiptNumber || "N/A"}</span></div>
+                            <div>Date: <span class="font-bold">${formatDate(data.receiptDate)}</span></div>
+                            <div>Time: <span class="font-bold">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span></div>
+                            <div>Customer: <span class="font-bold">${data.billTo || "General"}</span></div>
+                            <div>Cashier: <span class="font-bold">${data.cashier || "N/A"}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <table style="width: 100%; font-size: 0.75rem; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid #4b5563;">
+                                    <th style="text-align: left; padding: 0.25rem 0;">Description</th>
+                                    <th style="text-align: center; padding: 0.25rem 0;">Qty</th>
+                                    <th style="text-align: right; padding: 0.25rem 0;">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.items.map(item => `
+                                    <tr style="border-bottom: 1px solid #d1d5db;">
+                                        <td style="padding: 0.25rem 0; font-size: 0.75rem;">${item.name || "Item"}</td>
+                                        <td style="padding: 0.25rem 0; text-align: center;">${item.quantity || 0}</td>
+                                        <td style="padding: 0.25rem 0; text-align: right;">${formatCurrency(item.total || 0)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="border-top: 2px solid #1f2937; padding-top: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                            <span>Sub Total:</span>
+                            <span class="font-bold">${formatCurrency(subTotal)}</span>
+                        </div>
+                        ${taxPercentage > 0 ? `
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                                <span>Tax (${taxPercentage}%):</span>
+                                <span class="font-bold">${formatCurrency(taxAmount)}</span>
+                            </div>
+                        ` : ''}
+                        <div style="display: flex; justify-content: space-between; font-size: 1.125rem; font-weight: bold; border-top: 1px solid #4b5563; padding-top: 0.25rem;">
+                            <span>GRAND TOTAL:</span>
+                            <span>${formatCurrency(grandTotal)}</span>
+                        </div>
+                    </div>
+
+                    ${data.notes ? `
+                        <div style="margin-top: 0.75rem; padding: 0.5rem; border: 1px solid #9ca3af; font-size: 0.75rem;">
+                            <div class="font-bold mb-1">Notes:</div>
+                            <div>${data.notes}</div>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div style="text-align: center; font-size: 0.75rem; margin-top: 0.5rem; padding: 0.5rem; border-top: 1px solid #4b5563; background: #f3f4f6;">
+                    ${data.footer || "Thank you for your business!"}
+                </div>
+            `;
+        }
+
+        // Digital Receipt Template
+        function generateDigitalReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage) {
+            return `
+                <div style="background: linear-gradient(to bottom, #dbeafe, white); min-height: 100%;">
+                    <div style="background: #2563eb; color: white; padding: 0.75rem; text-align: center; margin: -1rem -1rem 0.5rem -1rem;">
+                        <div class="font-bold" style="font-size: 1.125rem;">DIGITAL RECEIPT</div>
+                        ${data.companyName ? `<div style="font-size: 0.875rem; margin-top: 0.25rem;">${data.companyName}</div>` : ''}
+                    </div>
+                    
+                    <div style="padding: 0.5rem;">
+                        ${data.companyAddress ? `<div style="text-align: center; font-size: 0.875rem; margin-bottom: 0.25rem;">${data.companyAddress}</div>` : ''}
+                        ${data.companyPhone ? `<div style="text-align: center; font-size: 0.875rem; margin-bottom: 0.75rem;">📞 ${data.companyPhone}</div>` : ''}
+                        
+                        <div style="background: white; border-radius: 0.5rem; padding: 0.5rem; margin-bottom: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.875rem;">
+                                <div>
+                                    <div style="color: #6b7280;">Receipt #</div>
+                                    <div class="font-bold">${data.receiptNumber || "N/A"}</div>
+                                </div>
+                                <div>
+                                    <div style="color: #6b7280;">Date & Time</div>
+                                    <div class="font-bold">${formatDate(data.receiptDate)} • ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</div>
+                                </div>
+                                <div>
+                                    <div style="color: #6b7280;">Customer</div>
+                                    <div class="font-bold">${data.billTo || "Guest"}</div>
+                                </div>
+                                <div>
+                                    <div style="color: #6b7280;">Cashier</div>
+                                    <div class="font-bold">${data.cashier || "System"}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div style="background: #f3f4f6; padding: 0.5rem; border-radius: 0.5rem 0.5rem 0 0;">
+                                <div class="font-bold" style="font-size: 0.875rem;">ORDER SUMMARY</div>
+                            </div>
+                            <div style="background: white; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; border-radius: 0 0 0.5rem 0.5rem; padding: 0.5rem;">
+                                ${data.items.map(item => `
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0; border-bottom: 1px solid #f3f4f6;">
+                                        <div style="flex: 1;">
+                                            <div style="font-size: 0.875rem; font-weight: 500;">${item.name || "Item"}</div>
+                                            <div style="font-size: 0.75rem; color: #6b7280;">${item.quantity || 0} × ${formatCurrency(item.amount || 0)}</div>
+                                        </div>
+                                        <div class="font-bold" style="font-size: 0.875rem;">
+                                            ${formatCurrency(item.total || 0)}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div style="background: #eff6ff; border-radius: 0.5rem; padding: 0.5rem; border: 1px solid #bfdbfe;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.25rem;">
+                                <span>Subtotal</span>
+                                <span>${formatCurrency(subTotal)}</span>
+                            </div>
+                            ${taxPercentage > 0 ? `
+                                <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.25rem;">
+                                    <span>Tax (${taxPercentage}%)</span>
+                                    <span>${formatCurrency(taxAmount)}</span>
+                                </div>
+                            ` : ''}
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.125rem; border-top: 1px solid #93c5fd; padding-top: 0.5rem; margin-top: 0.5rem;">
+                                <span>TOTAL</span>
+                                <span style="color: #2563eb;">${formatCurrency(grandTotal)}</span>
+                            </div>
+                        </div>
+
+                        ${data.notes ? `
+                            <div style="margin-top: 0.75rem; padding: 0.5rem; background: #fefce8; border-radius: 0.375rem; border: 1px solid #fde68a; font-size: 0.75rem;">
+                                <div class="font-bold" style="color: #92400e; margin-bottom: 0.25rem;">💡 Note:</div>
+                                <div style="color: #a16207;">${data.notes}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                <div style="text-align: center; font-size: 0.75rem; margin-top: 1rem; padding: 0.5rem; background: #2563eb; color: white; margin-left: -1rem; margin-right: -1rem; margin-bottom: -1rem;">
+                    ${data.footer || "Thank you for choosing us! 🙏"}
+                </div>
+            `;
+        }
+
+        // Terminal Receipt Template
+        function generateTerminalReceipt(data, subTotal, taxAmount, grandTotal, taxPercentage) {
+            return `
+                <div style="padding: 0.5rem;">
+                    <div class="text-center mb-3">
+                        <div style="color: #22c55e; font-weight: bold;">
+                            ╔══════════════════════════╗
+                        </div>
+                        <div style="color: #22c55e; font-weight: bold;">
+                            ║     TERMINAL RECEIPT     ║
+                        </div>
+                        <div style="color: #22c55e; font-weight: bold;">
+                            ╚══════════════════════════╝
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <div style="color: #22c55e;">COMPANY:</div>
+                        <div style="color: white;">${data.companyName || "SYSTEM"}</div>
+                        ${data.companyAddress ? `<div style="color: #9ca3af; font-size: 0.75rem;">${data.companyAddress}</div>` : ''}
+                        ${data.companyPhone ? `<div style="color: #9ca3af; font-size: 0.75rem;">TEL: ${data.companyPhone}</div>` : ''}
+                    </div>
+
+                    <div style="color: #22c55e;">
+                        ════════════════════════════
+                    </div>
+
+                    <div style="margin: 0.5rem 0; font-size: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #22c55e;">ID:</span>
+                            <span style="color: white;">${data.receiptNumber || "000000"}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #22c55e;">DATE:</span>
+                            <span style="color: white;">${formatDate(data.receiptDate) || "0000-00-00"}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #22c55e;">TIME:</span>
+                            <span style="color: white;">${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #22c55e;">USER:</span>
+                            <span style="color: white;">${data.cashier || "ADMIN"}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #22c55e;">CUST:</span>
+                            <span style="color: white;">${data.billTo || "GUEST"}</span>
+                        </div>
+                    </div>
+
+                    <div style="color: #22c55e;">
+                        ════════════════════════════
+                    </div>
+
+                    <div style="margin: 0.5rem 0;">
+                        <div style="color: #22c55e; font-size: 0.75rem; margin-bottom: 0.25rem;">ITEMS:</div>
+                        ${data.items.map(item => `
+                            <div style="font-size: 0.75rem; margin-bottom: 0.25rem;">
+                                <div style="display: flex; justify-content: space-between; color: white;">
+                                    <span>${(item.name || "ITEM").toUpperCase().substring(0, 15)}</span>
+                                    <span>${formatCurrency(item.total || 0)}</span>
+                                </div>
+                                <div style="color: #9ca3af; font-size: 0.75rem;">
+                                    QTY: ${item.quantity || 0} × ${formatCurrency(item.amount || 0)}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div style="color: #22c55e;">
+                        ════════════════════════════
+                    </div>
+
+                    <div style="margin: 0.5rem 0; font-size: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; color: white;">
+                            <span>SUBTOTAL:</span>
+                            <span>${formatCurrency(subTotal)}</span>
+                        </div>
+                        ${taxPercentage > 0 ? `
+                            <div style="display: flex; justify-content: space-between; color: white;">
+                                <span>TAX (${taxPercentage}%):</span>
+                                <span>${formatCurrency(taxAmount)}</span>
+                            </div>
+                        ` : ''}
+                        <div style="color: #22c55e; margin-top: 0.25rem;">
+                            ────────────────────────────
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #22c55e; font-weight: bold;">
+                            <span>TOTAL:</span>
+                            <span>${formatCurrency(grandTotal)}</span>
+                        </div>
+                    </div>
+
+                    ${data.notes ? `
+                        <div style="margin-top: 0.5rem;">
+                            <div style="color: #22c55e;">
+                                ════════════════════════════
+                            </div>
+                            <div style="color: #eab308; font-size: 0.75rem; margin-top: 0.25rem;">
+                                NOTE: ${data.notes}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div style="text-align: center; font-size: 0.75rem; margin-top: 0.75rem;">
+                    <div style="color: #22c55e;">
+                        ════════════════════════════
+                    </div>
+                    <div style="color: #9ca3af; margin-top: 0.25rem;">
+                        ${data.footer || "THANK YOU - SYSTEM LOGOUT"}
+                    </div>
+                    <div style="color: #22c55e; margin-top: 0.25rem;">
+                        ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+                    </div>
+                </div>
+            `;
+        }
+
+        // Fill dummy data
+        function fillDummyData() {
+            document.getElementById('companyName').value = 'Your Receipt Store';
+            document.getElementById('companyAddress').value = '123 Business St, City, State';
+            document.getElementById('companyPhone').value = '(555) 123-4567';
+            document.getElementById('companyGST').value = '22ABCDE1234F1Z5';
+            document.getElementById('cashier').value = 'John Doe';
+            
+            document.getElementById('billTo').value = 'Jane Customer';
+            
+            document.getElementById('taxPercentage').value = '10';
+            document.getElementById('notes').value = 'Thank you for your purchase!';
+            document.getElementById('footer').value = 'Visit us again soon!';
+
+            // Clear existing items and add sample items
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+            
+            const sampleItems = [
+                { name: 'Coffee', quantity: 2, rate: 5.50 },
+                { name: 'Sandwich', quantity: 1, rate: 8.99 },
+                { name: 'Chips', quantity: 3, rate: 2.25 }
+            ];
+
+            sampleItems.forEach(item => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'item-row';
+                itemRow.innerHTML = `
+                    <div class="input-group">
+                        <input type="text" name="itemName" value="${item.name}" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <input type="number" name="itemQuantity" value="${item.quantity}" min="0" step="1" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <input type="number" name="itemRate" value="${item.rate}" min="0" step="0.01" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <input type="number" name="itemTotal" readonly>
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button>
+                `;
+                container.appendChild(itemRow);
+            });
+
+            updateTotals();
+            updatePreview();
+            saveData();
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('receiptForm').reset();
+            document.getElementById('itemsContainer').innerHTML = `
+                <div class="item-row">
+                    <div class="input-group">
+                        <label>Item Name</label>
+                        <input type="text" name="itemName" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <label>Quantity</label>
+                        <input type="number" name="itemQuantity" min="0" step="1" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <label>Rate</label>
+                        <input type="number" name="itemRate" min="0" step="0.01" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <label>Total</label>
+                        <input type="number" name="itemTotal" readonly>
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button>
+                </div>
+            `;
+            generateRandomReceiptNumber();
+            setDefaultDate();
+            updateTotals();
+            updatePreview();
+            localStorage.removeItem('receiptData');
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            const data = getFormData();
+            localStorage.setItem('receiptData', JSON.stringify(data));
+        }
+
+        // Load saved data
+        function loadSavedData() {
+            const savedData = localStorage.getItem('receiptData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Fill form fields
+                Object.keys(data).forEach(key => {
+                    const element = document.getElementById(key) || document.querySelector(`[name="${key}"]`);
+                    if (element && key !== 'items') {
+                        element.value = data[key];
+                    }
+                });
+
+                // Fill items
+                if (data.items && data.items.length > 0) {
+                    const container = document.getElementById('itemsContainer');
+                    container.innerHTML = '';
+                    
+                    data.items.forEach(item => {
+                        const itemRow = document.createElement('div');
+                        itemRow.className = 'item-row';
+                        itemRow.innerHTML = `
+                            <div class="input-group">
+                                <input type="text" name="itemName" value="${item.name || ''}" onchange="updateTotals()">
+                            </div>
+                            <div class="input-group">
+                                <input type="number" name="itemQuantity" value="${item.quantity || 0}" min="0" step="1" onchange="updateTotals()">
+                            </div>
+                            <div class="input-group">
+                                <input type="number" name="itemRate" value="${item.amount || 0}" min="0" step="0.01" onchange="updateTotals()">
+                            </div>
+                            <div class="input-group">
+                                <input type="number" name="itemTotal" readonly>
+                            </div>
+                            <button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button>
+                        `;
+                        container.appendChild(itemRow);
+                    });
+                }
+            }
+        }
+
+        // Print receipt
+        function printReceipt() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
