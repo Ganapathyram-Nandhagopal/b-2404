@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, RefreshCw, FileText, RotateCw } from "lucide-react";
@@ -6,6 +7,10 @@ import Receipt1 from "../components/templates/Receipt1";
 import Receipt2 from "../components/templates/Receipt2";
 import Receipt3 from "../components/templates/Receipt3";
 import Receipt4 from "../components/templates/Receipt4";
+import Receipt5 from "../components/templates/Receipt5";
+import Receipt6 from "../components/templates/Receipt6";
+import Receipt7 from "../components/templates/Receipt7";
+import Receipt8 from "../components/templates/Receipt8";
 import { generateReceiptPDF } from "../utils/receiptPDFGenerator";
 import { generateGSTNumber } from "../utils/invoiceCalculations";
 import FloatingLabelInput from "../components/FloatingLabelInput";
@@ -361,7 +366,7 @@ const ReceiptPage = () => {
           <h2 className="text-2xl font-semibold mb-4">Receipt Preview</h2>
           <div className="mb-4 flex items-center">
             <h3 className="text-lg font-medium mr-4">Receipt Type</h3>
-            <div className="flex gap-4">
+            <div className="grid grid-cols-2 gap-2">
               <label className="flex items-center">
                 <input
                   type="radio"
@@ -371,7 +376,7 @@ const ReceiptPage = () => {
                   onChange={() => setTheme("Receipt1")}
                   className="mr-2"
                 />
-                Receipt1
+                Classic
               </label>
               <label className="flex items-center">
                 <input
@@ -382,7 +387,7 @@ const ReceiptPage = () => {
                   onChange={() => setTheme("Receipt2")}
                   className="mr-2"
                 />
-                Receipt2
+                Modern
               </label>
               <label className="flex items-center">
                 <input
@@ -393,7 +398,7 @@ const ReceiptPage = () => {
                   onChange={() => setTheme("Receipt3")}
                   className="mr-2"
                 />
-                Receipt3
+                Detailed
               </label>
               <label className="flex items-center">
                 <input
@@ -404,7 +409,51 @@ const ReceiptPage = () => {
                   onChange={() => setTheme("Receipt4")}
                   className="mr-2"
                 />
-                Receipt4
+                GST
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="theme"
+                  value="Receipt5"
+                  checked={theme === "Receipt5"}
+                  onChange={() => setTheme("Receipt5")}
+                  className="mr-2"
+                />
+                Sales
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="theme"
+                  value="Receipt6"
+                  checked={theme === "Receipt6"}
+                  onChange={() => setTheme("Receipt6")}
+                  className="mr-2"
+                />
+                Formal
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="theme"
+                  value="Receipt7"
+                  checked={theme === "Receipt7"}
+                  onChange={() => setTheme("Receipt7")}
+                  className="mr-2"
+                />
+                Digital
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="theme"
+                  value="Receipt8"
+                  checked={theme === "Receipt8"}
+                  onChange={() => setTheme("Receipt8")}
+                  className="mr-2"
+                />
+                Terminal
               </label>
             </div>
           </div>
@@ -461,6 +510,62 @@ const ReceiptPage = () => {
                   taxPercentage,
                   footer,
                   cashier,
+                }}
+              />
+            )}
+            {theme === "Receipt5" && (
+              <Receipt5
+                data={{
+                  billTo,
+                  invoice,
+                  yourCompany,
+                  cashier,
+                  items,
+                  taxPercentage,
+                  notes,
+                  footer,
+                }}
+              />
+            )}
+            {theme === "Receipt6" && (
+              <Receipt6
+                data={{
+                  billTo,
+                  invoice,
+                  yourCompany,
+                  cashier,
+                  items,
+                  taxPercentage,
+                  notes,
+                  footer,
+                }}
+              />
+            )}
+            {theme === "Receipt7" && (
+              <Receipt7
+                data={{
+                  billTo,
+                  invoice,
+                  yourCompany,
+                  cashier,
+                  items,
+                  taxPercentage,
+                  notes,
+                  footer,
+                }}
+              />
+            )}
+            {theme === "Receipt8" && (
+              <Receipt8
+                data={{
+                  billTo,
+                  invoice,
+                  yourCompany,
+                  cashier,
+                  items,
+                  taxPercentage,
+                  notes,
+                  footer,
                 }}
               />
             )}
