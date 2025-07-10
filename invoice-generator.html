@@ -1,0 +1,838 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            max-height: calc(100vh - 4rem);
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #374151;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .grid-3 {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 0.5rem;
+            align-items: end;
+            margin-bottom: 0.5rem;
+        }
+
+        .totals-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 0.375rem;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-row.grand-total {
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-top: 1px solid #d1d5db;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .invoice-preview {
+            width: 100%;
+            background: white;
+            padding: 2rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 2rem;
+        }
+
+        .invoice-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .company-info {
+            text-align: right;
+        }
+
+        .invoice-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .invoice-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+
+        .invoice-table td:last-child,
+        .invoice-table th:last-child {
+            text-align: right;
+        }
+
+        .invoice-totals {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .totals-table {
+            width: 300px;
+        }
+
+        .notes-section {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .creator-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .action-buttons {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .floating-btn {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .template-card {
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-align: center;
+        }
+
+        .template-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .print-button {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .invoice-preview, .invoice-preview * {
+                visibility: visible;
+            }
+            .invoice-preview {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .action-buttons,
+            .print-button {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="action-buttons">
+        <button class="floating-btn btn-danger" onclick="clearForm()" title="Clear Form">🗑️</button>
+        <button class="floating-btn btn-primary" onclick="fillDummyData()" title="Fill Dummy Data">✏️</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Invoice Generator</h1>
+        </div>
+
+        <div class="main-content">
+            <div class="form-section">
+                <form id="invoiceForm">
+                    <!-- Bill To Section -->
+                    <div>
+                        <h2 class="section-title">Bill To</h2>
+                        <div class="input-group">
+                            <label for="billToName">Name</label>
+                            <input type="text" id="billToName" name="billToName">
+                        </div>
+                        <div class="input-group">
+                            <label for="billToAddress">Address</label>
+                            <input type="text" id="billToAddress" name="billToAddress">
+                        </div>
+                        <div class="input-group">
+                            <label for="billToPhone">Phone</label>
+                            <input type="text" id="billToPhone" name="billToPhone">
+                        </div>
+                    </div>
+
+                    <!-- Invoice Information -->
+                    <div>
+                        <h2 class="section-title">Invoice Information</h2>
+                        <div class="grid grid-3">
+                            <div class="input-group">
+                                <label for="invoiceNumber">Invoice Number</label>
+                                <input type="text" id="invoiceNumber" name="invoiceNumber">
+                            </div>
+                            <div class="input-group">
+                                <label for="invoiceDate">Invoice Date</label>
+                                <input type="date" id="invoiceDate" name="invoiceDate">
+                            </div>
+                            <div class="input-group">
+                                <label for="paymentDate">Payment Date</label>
+                                <input type="date" id="paymentDate" name="paymentDate">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Your Company -->
+                    <div>
+                        <h2 class="section-title">Your Company</h2>
+                        <div class="grid grid-2">
+                            <div class="input-group">
+                                <label for="companyName">Name</label>
+                                <input type="text" id="companyName" name="companyName">
+                            </div>
+                            <div class="input-group">
+                                <label for="companyPhone">Phone</label>
+                                <input type="text" id="companyPhone" name="companyPhone">
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="companyAddress">Address</label>
+                            <input type="text" id="companyAddress" name="companyAddress">
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <div>
+                        <h2 class="section-title">Items</h2>
+                        <div id="itemsContainer">
+                            <div class="item-row">
+                                <div class="input-group">
+                                    <label>Item Name</label>
+                                    <input type="text" name="itemName" onchange="updateTotals()">
+                                </div>
+                                <div class="input-group">
+                                    <label>Quantity</label>
+                                    <input type="number" name="itemQuantity" min="0" step="1" onchange="updateTotals()">
+                                </div>
+                                <div class="input-group">
+                                    <label>Rate</label>
+                                    <input type="number" name="itemRate" min="0" step="0.01" onchange="updateTotals()">
+                                </div>
+                                <div class="input-group">
+                                    <label>Total</label>
+                                    <input type="number" name="itemTotal" readonly>
+                                </div>
+                                <button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addItem()">Add Item</button>
+                    </div>
+
+                    <!-- Totals -->
+                    <div class="totals-section">
+                        <h3 class="section-title">Totals</h3>
+                        <div class="total-row">
+                            <span>Sub Total:</span>
+                            <span>₹ <span id="subTotal">0.00</span></span>
+                        </div>
+                        <div class="total-row">
+                            <span>Tax Rate (%):</span>
+                            <input type="number" id="taxPercentage" min="0" max="28" step="1" value="0" onchange="updateTotals()" style="width: 80px;">
+                        </div>
+                        <div class="total-row">
+                            <span>Tax Amount:</span>
+                            <span>₹ <span id="taxAmount">0.00</span></span>
+                        </div>
+                        <div class="total-row grand-total">
+                            <span>Grand Total:</span>
+                            <span>₹ <span id="grandTotal">0.00</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div>
+                        <h2 class="section-title">Notes</h2>
+                        <div class="input-group">
+                            <textarea id="notes" name="notes" rows="4" placeholder="Thank you for your business!"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="preview-section">
+                <h2 class="section-title">Invoice Preview</h2>
+                <div class="invoice-preview" id="invoicePreview">
+                    <!-- Invoice content will be generated here -->
+                </div>
+                <div class="print-button">
+                    <button class="btn btn-primary" onclick="printInvoice()">Print Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let invoiceData = {};
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            generateRandomInvoiceNumber();
+            setDefaultDates();
+            loadSavedData();
+            updatePreview();
+            
+            // Add event listeners to all form inputs
+            const form = document.getElementById('invoiceForm');
+            form.addEventListener('input', function() {
+                updateTotals();
+                updatePreview();
+                saveData();
+            });
+        });
+
+        // Generate random invoice number
+        function generateRandomInvoiceNumber() {
+            const length = Math.floor(Math.random() * 6) + 3;
+            const alphabetCount = Math.min(Math.floor(Math.random() * 4), length);
+            let result = "";
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const numbers = "0123456789";
+
+            for (let i = 0; i < alphabetCount; i++) {
+                result += alphabet[Math.floor(Math.random() * alphabet.length)];
+            }
+
+            for (let i = alphabetCount; i < length; i++) {
+                result += numbers[Math.floor(Math.random() * numbers.length)];
+            }
+
+            document.getElementById('invoiceNumber').value = result;
+        }
+
+        // Set default dates
+        function setDefaultDates() {
+            const today = new Date();
+            const futureDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+            
+            document.getElementById('invoiceDate').value = today.toISOString().split('T')[0];
+            document.getElementById('paymentDate').value = futureDate.toISOString().split('T')[0];
+        }
+
+        // Add new item row
+        function addItem() {
+            const container = document.getElementById('itemsContainer');
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+            itemRow.innerHTML = `
+                <div class="input-group">
+                    <input type="text" name="itemName" placeholder="Item Name" onchange="updateTotals()">
+                </div>
+                <div class="input-group">
+                    <input type="number" name="itemQuantity" min="0" step="1" placeholder="0" onchange="updateTotals()">
+                </div>
+                <div class="input-group">
+                    <input type="number" name="itemRate" min="0" step="0.01" placeholder="0.00" onchange="updateTotals()">
+                </div>
+                <div class="input-group">
+                    <input type="number" name="itemTotal" readonly>
+                </div>
+                <button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button>
+            `;
+            container.appendChild(itemRow);
+        }
+
+        // Remove item row
+        function removeItem(button) {
+            button.parentElement.remove();
+            updateTotals();
+            updatePreview();
+            saveData();
+        }
+
+        // Update totals calculation
+        function updateTotals() {
+            const itemRows = document.querySelectorAll('.item-row');
+            let subTotal = 0;
+
+            itemRows.forEach(row => {
+                const quantity = parseFloat(row.querySelector('[name="itemQuantity"]').value) || 0;
+                const rate = parseFloat(row.querySelector('[name="itemRate"]').value) || 0;
+                const total = quantity * rate;
+                
+                row.querySelector('[name="itemTotal"]').value = total.toFixed(2);
+                subTotal += total;
+            });
+
+            const taxPercentage = parseFloat(document.getElementById('taxPercentage').value) || 0;
+            const taxAmount = (subTotal * taxPercentage) / 100;
+            const grandTotal = subTotal + taxAmount;
+
+            document.getElementById('subTotal').textContent = subTotal.toFixed(2);
+            document.getElementById('taxAmount').textContent = taxAmount.toFixed(2);
+            document.getElementById('grandTotal').textContent = grandTotal.toFixed(2);
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return `₹${parseFloat(amount).toFixed(2)}`;
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: '2-digit' 
+            });
+        }
+
+        // Get form data
+        function getFormData() {
+            const form = document.getElementById('invoiceForm');
+            const formData = new FormData(form);
+            const data = {};
+
+            // Basic form data
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Items data
+            const itemRows = document.querySelectorAll('.item-row');
+            data.items = [];
+            
+            itemRows.forEach(row => {
+                const name = row.querySelector('[name="itemName"]').value;
+                const quantity = parseFloat(row.querySelector('[name="itemQuantity"]').value) || 0;
+                const rate = parseFloat(row.querySelector('[name="itemRate"]').value) || 0;
+                const total = quantity * rate;
+                
+                if (name || quantity || rate) {
+                    data.items.push({
+                        name: name,
+                        quantity: quantity,
+                        amount: rate,
+                        total: total
+                    });
+                }
+            });
+
+            return data;
+        }
+
+        // Update preview
+        function updatePreview() {
+            const data = getFormData();
+            const subTotal = parseFloat(document.getElementById('subTotal').textContent) || 0;
+            const taxAmount = parseFloat(document.getElementById('taxAmount').textContent) || 0;
+            const grandTotal = parseFloat(document.getElementById('grandTotal').textContent) || 0;
+            const taxPercentage = parseFloat(document.getElementById('taxPercentage').value) || 0;
+
+            const preview = document.getElementById('invoicePreview');
+            preview.innerHTML = `
+                <div class="invoice-header">
+                    <div>
+                        <h1 class="invoice-title">Invoice</h1>
+                        <p><strong>Invoice#:</strong> ${data.invoiceNumber || 'N/A'}</p>
+                        <p><strong>Invoice Date:</strong> ${formatDate(data.invoiceDate)}</p>
+                        <p><strong>Due Date:</strong> ${formatDate(data.paymentDate)}</p>
+                    </div>
+                    <div class="company-info">
+                        <h2>${data.companyName || 'Your Company Name'}</h2>
+                        <p>${data.companyAddress || 'Company Address'}</p>
+                        <p>${data.companyPhone || 'Company Phone'}</p>
+                    </div>
+                </div>
+
+                <div class="invoice-details">
+                    <div>
+                        <h3>Billed to</h3>
+                        <p><strong>${data.billToName || 'Client Name'}</strong></p>
+                        <p>${data.billToAddress || 'Client Address'}</p>
+                        <p>${data.billToPhone || 'Client Phone'}</p>
+                    </div>
+                </div>
+
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Item Description</th>
+                            <th>Qty.</th>
+                            <th>Rate</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.items.map(item => `
+                            <tr>
+                                <td>${item.name || 'Item Name'}</td>
+                                <td>${item.quantity || 0}</td>
+                                <td>${formatCurrency(item.amount || 0)}</td>
+                                <td>${formatCurrency(item.total || 0)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="invoice-totals">
+                    <div class="totals-table">
+                        <div class="total-row">
+                            <span>Sub Total:</span>
+                            <span>${formatCurrency(subTotal)}</span>
+                        </div>
+                        ${taxPercentage > 0 ? `
+                            <div class="total-row">
+                                <span>Tax (${taxPercentage}%):</span>
+                                <span>${formatCurrency(taxAmount)}</span>
+                            </div>
+                        ` : ''}
+                        <div class="total-row grand-total">
+                            <span>Total:</span>
+                            <span>${formatCurrency(grandTotal)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                ${data.notes ? `
+                    <div class="notes-section">
+                        <h3>Notes:</h3>
+                        <p>${data.notes}</p>
+                    </div>
+                ` : ''}
+
+                <div class="creator-footer">
+                    <p>Created by Ganapathy</p>
+                </div>
+            `;
+        }
+
+        // Fill dummy data
+        function fillDummyData() {
+            document.getElementById('billToName').value = 'Ganapathyram Nandhagopal';
+            document.getElementById('billToAddress').value = 'Coimbatore, Tamil Nadu, India';
+            document.getElementById('billToPhone').value = '+91 6383236424';
+            
+            document.getElementById('companyName').value = 'Your Company';
+            document.getElementById('companyAddress').value = '789 Oak St, Businessville, USA';
+            document.getElementById('companyPhone').value = '(555) 555-5555';
+            
+            document.getElementById('taxPercentage').value = '10';
+            document.getElementById('notes').value = 'Thank you for your business!';
+
+            // Clear existing items and add sample items
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+            
+            const sampleItems = [
+                { name: 'Product A', quantity: 2, rate: 50 },
+                { name: 'Service B', quantity: 1, rate: 200 },
+                { name: 'Product C', quantity: 3, rate: 30 }
+            ];
+
+            sampleItems.forEach(item => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'item-row';
+                itemRow.innerHTML = `
+                    <div class="input-group">
+                        <input type="text" name="itemName" value="${item.name}" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <input type="number" name="itemQuantity" value="${item.quantity}" min="0" step="1" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <input type="number" name="itemRate" value="${item.rate}" min="0" step="0.01" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <input type="number" name="itemTotal" readonly>
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button>
+                `;
+                container.appendChild(itemRow);
+            });
+
+            updateTotals();
+            updatePreview();
+            saveData();
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('invoiceForm').reset();
+            document.getElementById('itemsContainer').innerHTML = `
+                <div class="item-row">
+                    <div class="input-group">
+                        <label>Item Name</label>
+                        <input type="text" name="itemName" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <label>Quantity</label>
+                        <input type="number" name="itemQuantity" min="0" step="1" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <label>Rate</label>
+                        <input type="number" name="itemRate" min="0" step="0.01" onchange="updateTotals()">
+                    </div>
+                    <div class="input-group">
+                        <label>Total</label>
+                        <input type="number" name="itemTotal" readonly>
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button>
+                </div>
+            `;
+            generateRandomInvoiceNumber();
+            setDefaultDates();
+            updateTotals();
+            updatePreview();
+            localStorage.removeItem('invoiceData');
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            const data = getFormData();
+            localStorage.setItem('invoiceData', JSON.stringify(data));
+        }
+
+        // Load saved data
+        function loadSavedData() {
+            const savedData = localStorage.getItem('invoiceData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                
+                // Fill form fields
+                Object.keys(data).forEach(key => {
+                    const element = document.getElementById(key) || document.querySelector(`[name="${key}"]`);
+                    if (element && key !== 'items') {
+                        element.value = data[key];
+                    }
+                });
+
+                // Fill items
+                if (data.items && data.items.length > 0) {
+                    const container = document.getElementById('itemsContainer');
+                    container.innerHTML = '';
+                    
+                    data.items.forEach(item => {
+                        const itemRow = document.createElement('div');
+                        itemRow.className = 'item-row';
+                        itemRow.innerHTML = `
+                            <div class="input-group">
+                                <input type="text" name="itemName" value="${item.name || ''}" onchange="updateTotals()">
+                            </div>
+                            <div class="input-group">
+                                <input type="number" name="itemQuantity" value="${item.quantity || 0}" min="0" step="1" onchange="updateTotals()">
+                            </div>
+                            <div class="input-group">
+                                <input type="number" name="itemRate" value="${item.amount || 0}" min="0" step="0.01" onchange="updateTotals()">
+                            </div>
+                            <div class="input-group">
+                                <input type="number" name="itemTotal" readonly>
+                            </div>
+                            <button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button>
+                        `;
+                        container.appendChild(itemRow);
+                    });
+                }
+            }
+        }
+
+        // Print invoice
+        function printInvoice() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
